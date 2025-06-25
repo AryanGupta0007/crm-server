@@ -1,0 +1,53 @@
+from django.db import models
+from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
+
+
+# Create your models here.
+class UserManager(BaseUserManager):
+    
+    def create_user(self, name, email, contact, type, password=None):
+        if not email:
+            return ValueError('Users must have a email')
+        user = self.model(
+            email=email,
+            name=name,
+            type=type,
+            contact=contact
+        )
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+    
+    def create_superuser(self, name, email, contact, type, password=None):
+        user = self.model(
+            type=type,
+            name=name,
+            email=email,
+            contact=contact
+        )
+        user.set_password(password)
+        user.is_admin=True
+        user.save(using=self._db)
+        return user
+
+
+class User(AbstractBaseUser):
+    email = models.EmailField(unique=True)
+    name = models.CharField(max_length=72)
+    contact = models.CharField(max_length=14)
+    is_admin = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    USERNAME_FIELD = "email"
+    EMAIL_FIELD = "email"
+    
+    def __str__(self):
+        return self.name
+
+
+
+class Employee(models.Model):
+    user = models.ForeignKey(User, related_name="employee_details", on_delete=models.CASCADE)
+    type = models.CharField(default="sales", max_length=23)
+    allot = models.IntegerField(blank=True, null=True)
