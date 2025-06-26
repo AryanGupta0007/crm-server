@@ -29,7 +29,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
         contact = validated_data.get('contact')
         password = validated_data.get('password')
         if (validated_data.get('is_admin')):
-            is_admin = validated_data.get(is_admin)
+            is_admin = validated_data.get('is_admin')
         else:
             is_admin = False
         user = User(email=email, name=name, contact=contact, is_admin=is_admin)

@@ -1,6 +1,6 @@
 import pandas as pd 
 import numpy as np
-from admin_api.models import Lead
+from admin_api.models import Lead, LeadBoardScore, LeadAccountStatus, LeadOperationStatus, LeadSaleStatus
 from auth_api.models import User, Employee
 
 
@@ -33,6 +33,18 @@ def get_leads(lead_sheet):
             contact_number=contact,
             source=source
             )
+        lead_board_score = LeadBoardScore(
+            lead=lead
+        )
+        lead_account_status = LeadAccountStatus(
+            lead=lead
+        )
+        lead_sale_status = LeadSaleStatus(
+            lead=lead
+        )
+        lead_operation_status = LeadOperationStatus(
+            lead=lead
+        )
         
         if (Lead.objects.filter(contact_number=contact).exists()):
             print('lead assigned to a user')
@@ -44,6 +56,10 @@ def get_leads(lead_sheet):
                 print(assigned_to)
             existing_lead.delete()   
         lead.save()
+        lead_account_status.save()
+        lead_board_score.save()
+        lead_sale_status.save()
+        lead_operation_status.save()
     
     leads = Lead.objects.all()    
     assign_leads()                

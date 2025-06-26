@@ -33,7 +33,7 @@ class LeadBoardScore(models.Model):
 class LeadSaleStatus(models.Model):
     lead = models.ForeignKey(Lead, related_name="sale_details", on_delete=models.CASCADE)
     batch = models.ForeignKey(Batch, related_name="prospects", on_delete=models.SET_NULL, blank=True, null=True)
-    status = models.CharField(max_length=5)
+    status = models.CharField(max_length=20, default="interested")
     form_ss = models.ImageField(upload_to="images/", null=True, blank=True)
     discount = models.BooleanField(default=False)
     discount_ss = models.ImageField(upload_to="images/", null=True, blank=True)

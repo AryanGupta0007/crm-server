@@ -71,6 +71,7 @@ class LeadSaleStatusPatchSerializer(serializers.ModelSerializer):
         exclude = ['created_at', 'updated_at', 'lead']
 
 
+
 class LeadGetSerializer(serializers.ModelSerializer):
     assigned_to = UserGetSerializer()
     board_score = serializers.SerializerMethodField()

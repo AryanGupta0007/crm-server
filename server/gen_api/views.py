@@ -27,7 +27,8 @@ class CurrentUserView(APIView):
 class UnderReviewLeads(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
-        under_review_leads = Lead.objects.filter(status="under-review")
+        under_review_leads = Lead.objects.filter(sale_details__status="under-review").distinct()
+
         leads = [LeadGetSerializer(lead).data for lead in under_review_leads]
         return Response({
             "msg": "under review leads fetched",
