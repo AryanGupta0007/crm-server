@@ -1,3 +1,4 @@
+from django.http import FileResponse, Http404
 from rest_framework import status
 from rest_framework.response import Response 
 from rest_framework.views import APIView
@@ -12,6 +13,30 @@ from auth_api.serializers import (
     UserGetSerializer,
     EmployeeGetSerializer,
     )
+from gen_api.serializers import ProofSerializer
+
+
+class ProofView(APIView):
+    def get(self, request, pk, *args, **kwargs):
+        allowed_fields = ['form_ss', 'discount_ss', 'books_ss', 'payment_ss']
+        field = request.GET.get('field')
+        if field not in allowed_fields:
+            return Response({"msg": f"Invalid field: {field}"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            lead = Lead.objects.get(id=pk)
+            image = getattr(lead.sale_details.first(), field)
+
+            if not image:
+                raise Http404("Image not found")
+
+            return FileResponse(
+                image.open('rb'),
+                as_attachment=True,
+                filename=image.name.split('/')[-1]
+            )
+        except Lead.DoesNotExist:
+            return Response({"msg": "Lead not found"}, status=status.HTTP_400_BAD_REQUEST)
 
 class CurrentUserView(APIView):
     permission_classes = [IsAuthenticated]

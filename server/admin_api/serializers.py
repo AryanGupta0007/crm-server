@@ -43,7 +43,7 @@ class GetLeadOperationStatus(serializers.ModelSerializer):
 class LeadPatchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lead
-        fields = ['assigned_to',  'source', 'status', 'followUpDate']
+        fields = ['assigned_to',  'source', 'status']
 
 
 class LeadBoardScorePatchSerializer(serializers.ModelSerializer):
@@ -92,7 +92,6 @@ class LeadGetSerializer(serializers.ModelSerializer):
             'operations_details',
             'status',
             'source',
-            'followUpDate',
             'created_at',
             'updated_at',
             'revenue'

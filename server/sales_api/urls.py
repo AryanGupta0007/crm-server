@@ -1,7 +1,8 @@
 from django.urls import path
-from sales_api.views import LeadView
+from sales_api.views import LeadSaleView, LeadBoardScoreView
 
 
 urlpatterns = [
-    path('leads/', LeadView.as_view(), name="sales-leads"),
+    path('leads/', LeadSaleView.as_view(), name="sales-leads"),
+    path('boardScore/', LeadBoardScoreView.as_view(), name="sales-board_score")
 ]
