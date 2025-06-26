@@ -3,8 +3,23 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from admin_api.models import Lead
-from admin_api.serializers import LeadGetSerializer, LeadSaleStatusPatchSerializer, LeadBoardScorePatchSerializer
+from admin_api.serializers import LeadGetSerializer, LeadPatchSerializer,  LeadSaleStatusPatchSerializer, LeadBoardScorePatchSerializer
 
+class LeadView(APIView):
+    def patch(self, request):
+        lead = Lead.objects.filter(id=request.data.get('id')).first()
+        serializer = LeadPatchSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+            
+        for field in ['status']:
+            if field in serializer.validated_data:
+                setattr(lead, field, serializer.validated_data[field])
+                    
+        return Response({
+            "msg": "Lead updated",
+            "lead": LeadGetSerializer(lead).data
+        }) 
+    
 
 class LeadSaleView(APIView):
     permission_classes = [IsAuthenticated]
