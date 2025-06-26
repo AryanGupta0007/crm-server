@@ -5,14 +5,14 @@ from auth_api.models import User, Employee
 class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["email", "name", "password", "contact"]
+        fields = ["email", "name", "password", "contact", "is_admin"]
     
     def validate(self, attrs):
         email = attrs.get('email')
         name = attrs.get('name')
         contact = attrs.get('contact')
         password = attrs.get('password')
-        
+        is_admin = attrs.get('is_admin')
         if not email or not  name or not contact or not password :
             raise serializers.ValidationError('Either email or name or contact number or password or type of the user is not defined')
         if (email): 
@@ -28,8 +28,13 @@ class UserCreateSerializer(serializers.ModelSerializer):
         name = validated_data.get('name')
         contact = validated_data.get('contact')
         password = validated_data.get('password')
-        user = User(email=email, name=name, contact=contact)
+        if (validated_data.get('is_admin')):
+            is_admin = validated_data.get(is_admin)
+        else:
+            is_admin = False
+        user = User(email=email, name=name, contact=contact, is_admin=is_admin)
         user.set_password(password)
+        print(f'created_user {user}')
         user.save()
         return user    
 

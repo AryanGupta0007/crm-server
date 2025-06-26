@@ -51,13 +51,14 @@ class LeadSheetView(APIView):
     def get(self, request):
         leads = Lead.objects.all()
         leads = [LeadGetSerializer(lead).data for lead in leads]
-        print(leads)
+        # print(leads)
         return Response({
             "leads": leads
         }, status=status.HTTP_200_OK)
         
     def patch(self, request): ## edit one lead 
-        lead = Lead.objects.filter(id=request.data.get('leadID')).first()
+        print(f"patch request: {request.data}")
+        lead = Lead.objects.filter(id=request.data.get('id')).first()
         serializer = LeadPatchSerializer(data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         
@@ -67,7 +68,8 @@ class LeadSheetView(APIView):
         lead.save()
         print(lead)
         return Response({
-            'msg': 'Lead edited'
+            'msg': 'Lead edited',
+            "lead": LeadGetSerializer(lead).data 
         }, status=status.HTTP_200_OK)
         
 
@@ -133,7 +135,7 @@ class EmployeeView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
         users = User.objects.filter(is_admin=False)
-        emps = [UserGetSerializer(user) for user in users]
+        emps = [UserGetSerializer(user).data for user in users]
         return Response({
             'employees': emps
         })
@@ -152,9 +154,10 @@ class BatchView(APIView):
         serializer = BatchPostSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         batch = serializer.save()
+        
         return Response({
             'msg': 'New Batch added success',
-            'batch': batch.data
+            'batch': BatchGetSerializer(batch).data
         })
     
     def patch(self, request):

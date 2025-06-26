@@ -1,10 +1,11 @@
 from django.db import models
-from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
+from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
 
 
 # Create your models here.
 class UserManager(BaseUserManager):
-    
+    def get_by_natural_key(self, email):
+        return self.get(email=email)
     def create_user(self, name, email, contact, type, password=None):
         if not email:
             return ValueError('Users must have a email')
@@ -31,14 +32,14 @@ class UserManager(BaseUserManager):
         return user
 
 
-class User(AbstractBaseUser):
+class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=72)
     contact = models.CharField(max_length=14)
     is_admin = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    objects = UserManager()
     USERNAME_FIELD = "email"
     EMAIL_FIELD = "email"
     

@@ -47,7 +47,7 @@ class UserView(APIView):
         return Response(
             {
                 "token": token,
-                "user": serializer.data,
+                "user": UserGetSerializer(user).data,
                 "msg": "User created",
                 "emp": emp_serializer.data
             }, status=status.HTTP_200_OK)
@@ -64,12 +64,14 @@ class UserLoginView(APIView):
         user = authenticate(email=email, password=password)
         if user is not None: 
             token = Utils.get_tokens_for_user(user=user) 
-        
+            
+            emp_serializer = EmployeeGetSerializer(Employee.objects.filter(user=user).first())
             return Response(
             {
                 "token": "jfsljfalsdjf",
                 "msg": "User Logged Login",
-                "user": serializer.data,
+                "user": UserGetSerializer(user).data,
+                "emp": emp_serializer.data,
                 "token": token
             }, status=status.HTTP_200_OK
             )

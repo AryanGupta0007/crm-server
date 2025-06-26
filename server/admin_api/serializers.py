@@ -42,6 +42,7 @@ class GetLeadOperationStatus(serializers.ModelSerializer):
 
 class LeadPatchSerializer(serializers.ModelSerializer):
     class Meta:
+        model = Lead
         fields = ['assigned_to',  'source', 'status', 'followUpDate']
 
 
@@ -80,6 +81,7 @@ class LeadGetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lead
         fields =  [
+            'id',
             'assigned_to',
             'name',
             'contact_number',
@@ -88,6 +90,7 @@ class LeadGetSerializer(serializers.ModelSerializer):
             'account_details',
             'operations_details',
             'status',
+            'source',
             'followUpDate',
             'created_at',
             'updated_at',
@@ -95,12 +98,15 @@ class LeadGetSerializer(serializers.ModelSerializer):
             ]
     def get_revenue(self, obj):
         amount = 0
-        batch_price = obj.sale_details.price 
-        amount += batch_price
-        if (obj.sale_details.buy_books):
-            amount += obj.sale_details.book_price
-        # if (obj.sale_details.discount):
-        #     amount += obj.sale_details.discount
+        print(f"sale_details: {obj.sale_details}")
+        # if (obj.sale_details.batch):
+        #     batch = obj.sale_details.batch
+        #     batch_details = Batch.objects.filter(id=batch) 
+        #     amount += batch_details.price
+        #     if (obj.sale_details.buy_books):
+        #         amount += batch_details.book_price
+        #     # if (obj.sale_details.discount):
+        #     #     amount += obj.sale_details.discount
         return amount
     
     def get_operations_details(self, obj):
@@ -124,22 +130,31 @@ class BatchGetSerializer(serializers.ModelSerializer):
 class BatchPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Batch
-        exclude = ['id', 'created_at', 'updated_at']
+        fields = ['name', 'book_price', 'price', 'status']
     
     def validate(self, attrs):
+        print(attrs)
         name = attrs.get('name')
         status = attrs.get('status')
         book_price = attrs.get('book_price')
         price = attrs.get('price')
-        if not name or not status or not book_price or not price:
-            raise serializers.ValidationError("name or status or book's price or batch price is missing")
+        if not name:
+            raise serializers.ValidationError("name")
+        if  (book_price == ""):
+            raise serializers.ValidationError("book_price is not jfsljfl")
+        if (price == ""):
+            raise serializers.ValidationError("price")
+        if not status:
+            raise serializers.ValidationError("status")
         return super().validate(attrs=attrs)
     
-    def create(self, validate_data):
-        name = validate_data.get('name')
-        status = validate_data.get('status')
-        book_price = validate_data.get('book_price')
-        price = validate_data.get('price')
+    def create(self, validated_data):
+        name = validated_data.get('name')
+        status = validated_data.get('status')
+        book_price = validated_data.get('book_price')
+        price = validated_data.get('price')
+        print(validated_data)
+        print(name, status, book_price, price)
         batch = Batch(name=name, status=status, book_price=book_price, price=price)
         batch.save()
         return batch

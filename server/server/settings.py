@@ -29,6 +29,7 @@ ALLOWED_HOSTS = []
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'auth_api.backends.CustomTokenAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 }
@@ -42,7 +43,8 @@ SIMPLE_JWT = {
 # Application definition
 
 INSTALLED_APPS = [
-     'corsheaders',
+    'corsheaders',
+    'sales_api',
     'gen_api',
     'ops_api',
     'accounts_api',
