@@ -27,7 +27,7 @@ SECRET_KEY = "django-insecure-q(xo-@@y@zixj_s-!0)(tc4qmedg8*4#ztq858!e$z=g7729lr
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['crm-server-1x4z.onrender.com']
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
