@@ -17,6 +17,8 @@ from gen_api.serializers import ProofSerializer
 
 
 class ProofView(APIView):
+    permission_classes = [IsAuthenticated]
+    
     def get(self, request, pk, *args, **kwargs):
         allowed_fields = ['form_ss', 'discount_ss', 'books_ss', 'payment_ss']
         field = request.GET.get('field')
@@ -52,7 +54,7 @@ class CurrentUserView(APIView):
 class UnderReviewLeads(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
-        under_review_leads = Lead.objects.filter(sale_details__status="under-review").distinct()
+        under_review_leads = Lead.objects.filter(status="under-review").distinct()
 
         leads = [LeadGetSerializer(lead).data for lead in under_review_leads]
         return Response({

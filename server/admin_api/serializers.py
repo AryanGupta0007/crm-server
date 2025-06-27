@@ -71,17 +71,25 @@ class LeadSaleStatusPatchSerializer(serializers.ModelSerializer):
         exclude = ['created_at', 'updated_at', 'lead']
 
 
+class BatchGetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Batch 
+        fields = '__all__'    
+        
 
 class LeadGetSerializer(serializers.ModelSerializer):
     assigned_to = UserGetSerializer()
+    batch = BatchGetSerializer()
     board_score = serializers.SerializerMethodField()
     sale_details = serializers.SerializerMethodField()
     account_details = serializers.SerializerMethodField()
     operations_details = serializers.SerializerMethodField()
     revenue = serializers.SerializerMethodField()
+    batch = serializers.SerializerMethodField()
     class Meta:
         model = Lead
         fields =  [
+            'batch',
             'id',
             'assigned_to',
             'name',
@@ -94,19 +102,29 @@ class LeadGetSerializer(serializers.ModelSerializer):
             'source',
             'created_at',
             'updated_at',
-            'revenue'
+            'revenue',
+            'batch'
             ]
+        
+    def get_batch(self, obj):
+        latest_sale = obj.sale_details.first()
+        if latest_sale and latest_sale.batch:
+            return BatchGetSerializer(latest_sale.batch).data
+        return None
+    
     def get_revenue(self, obj):
         amount = 0
+        sale_details = obj.sale_details.first()
         print(f"sale_details: {obj.sale_details}")
-        # if (obj.sale_details.batch):
-        #     batch = obj.sale_details.batch
-        #     batch_details = Batch.objects.filter(id=batch) 
-        #     amount += batch_details.price
-        #     if (obj.sale_details.buy_books):
-        #         amount += batch_details.book_price
-        #     # if (obj.sale_details.discount):
-        #     #     amount += obj.sale_details.discount
+        if (sale_details.batch):
+            batch = sale_details.batch
+            # print(batch.id)
+            batch_details = Batch.objects.filter(id=batch.id).first() 
+            amount += batch_details.price
+            if (sale_details.buy_books):
+                amount += batch_details.book_price
+            # if (obj.sale_details.discount):
+            #     amount += obj.sale_details.discount
         return amount
     
     def get_operations_details(self, obj):
@@ -122,11 +140,6 @@ class LeadGetSerializer(serializers.ModelSerializer):
         return GetLeadAccountStatus(obj.account_details.first(), many=False).data
 
 
-class BatchGetSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Batch 
-        fields = '__all__'    
-        
 class BatchPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Batch

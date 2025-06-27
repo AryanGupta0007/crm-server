@@ -20,6 +20,26 @@ class Lead(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)     
     
+    def check_lead_update_status(self):
+        sale_details = self.sale_details.first()
+        print(self, sale_details)
+        print(sale_details)
+        if (not sale_details.form_ss) or (not sale_details.payment_ss):
+            return False
+        if (sale_details.buy_books):
+            if (sale_details.books_ss):
+                pass
+            else:
+                return False
+        if (sale_details.discount):
+            if (sale_details.discount_ss):
+                return True
+            else: 
+                return False
+        return True
+                
+        
+    
 class LeadBoardScore(models.Model):
     lead = models.ForeignKey(Lead, related_name="board_score", on_delete=models.CASCADE)
     year = models.CharField(max_length=4, blank=True, null=True)

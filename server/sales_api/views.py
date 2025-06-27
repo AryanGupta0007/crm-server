@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from admin_api.models import Lead
-from admin_api.serializers import LeadGetSerializer, LeadPatchSerializer,  LeadSaleStatusPatchSerializer, LeadBoardScorePatchSerializer
+from admin_api.serializers import LeadGetSerializer, LeadPatchSerializer,  LeadSaleStatusPatchSerializer, LeadBoardScorePatchSerializer, BatchGetSerializer
 
 class LeadView(APIView):
     def patch(self, request):
@@ -14,7 +14,7 @@ class LeadView(APIView):
         for field in ['status']:
             if field in serializer.validated_data:
                 setattr(lead, field, serializer.validated_data[field])
-                    
+        lead.save()            
         return Response({
             "msg": "Lead updated",
             "lead": LeadGetSerializer(lead).data
@@ -40,23 +40,11 @@ class LeadSaleView(APIView):
             for field in ['batch', 'status', 'form_ss', 'discount', 'discount_ss', 'buy_books', 'books_ss', 'payment_ss', 'followUpDate', 'comment']:
                 if field in serializer.validated_data:
                     setattr(lead_sale_details, field, serializer.validated_data[field])
-            lead_sale_details.save()
-        if (lead_sale_details.payment_ss and lead_sale_details.form_ss ):
-            if (lead_sale_details.buy_books):
-                if (lead_sale_details.books_ss):
-                    if (lead_sale_details.discount):
-                        if (lead_sale_details.discount_ss):
-                            lead.status = 'under-review'
-                    else:
-                        lead.status = 'under-review'
-            else: 
-                if (lead_sale_details.discount):
-                        if (lead_sale_details.discount_ss):
-                            lead.status = 'under-review'
-                else:
-                    lead.status = 'under-review'
-                    
-                    
+        status = lead.check_lead_update_status()
+        if (status):
+            lead.status = 'under-review'
+        lead_sale_details.save()            
+        lead.save()            
         return Response({
             "msg": "Lead updated",
             "lead": LeadGetSerializer(lead).data
