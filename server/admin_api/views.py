@@ -6,7 +6,10 @@ from rest_framework.permissions import IsAuthenticated
 from . import excelService 
 from admin_api.models import Lead, Batch
 from admin_api.serializers import (
+<<<<<<< HEAD
     EmployeeGetSerializer,
+=======
+>>>>>>> 484d05232bb4c6f60d40a346c793ec2c3cde9c57
     EmployeePatchSerializer,
     LeadGetSerializer,
     LeadBoardScorePatchSerializer,
@@ -37,17 +40,28 @@ class DownloadDatabaseFile(APIView):
             as_attachment=True,
             filename='db.sqlite3'
         )
+<<<<<<< HEAD
+=======
+
+>>>>>>> 484d05232bb4c6f60d40a346c793ec2c3cde9c57
 class LeadSheetView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
         lead_sheet = request.FILES.get('file')
         excelService.get_leads(lead_sheet)
+<<<<<<< HEAD
         leads = Lead.objects.all()
         # for lead in leads:
         #     print(lead.name, lead.created_at)
         return Response({
             'msg': 'Obtained Leads',
             'leads': [LeadGetSerializer(lead).data for lead in leads] 
+=======
+        # for lead in leads:
+        #     print(lead.name, lead.created_at)
+        return Response({
+            'msg': 'Obtained Leads' 
+>>>>>>> 484d05232bb4c6f60d40a346c793ec2c3cde9c57
         }, status=status.HTTP_200_OK)
         
     def get(self, request):
@@ -64,7 +78,11 @@ class LeadSheetView(APIView):
         serializer = LeadPatchSerializer(data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         
+<<<<<<< HEAD
         for field in ['assigned_to', 'status', 'source']:
+=======
+        for field in ['assigned_to', 'status']:
+>>>>>>> 484d05232bb4c6f60d40a346c793ec2c3cde9c57
             if field in serializer.validated_data:
                 setattr(lead, field, serializer.validated_data[field])
         lead.save()
@@ -113,7 +131,11 @@ class ResetAllotLeads(APIView):
             'msg': 'alloted leads reset'
         }, status=status.HTTP_200_OK)
         
+<<<<<<< HEAD
             
+=======
+    
+>>>>>>> 484d05232bb4c6f60d40a346c793ec2c3cde9c57
 class DashboardStatsView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
@@ -141,6 +163,7 @@ class EmployeeView(APIView):
         return Response({
             'employees': emps
         })
+<<<<<<< HEAD
     def patch(self, request):
         emp = Employee.objects.filter(id=request.data.get('id')).first()
         print(emp)
@@ -152,6 +175,8 @@ class EmployeeView(APIView):
         return Response({
             'emp': EmployeeGetSerializer(emp).data 
         })
+=======
+>>>>>>> 484d05232bb4c6f60d40a346c793ec2c3cde9c57
         
 
 class BatchView(APIView):
@@ -186,7 +211,10 @@ class BatchView(APIView):
             'msg': 'Batch updated success'
         })
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 484d05232bb4c6f60d40a346c793ec2c3cde9c57
 class ClosedSalesView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
