@@ -28,11 +28,7 @@ urlpatterns = [
     path("api/ops/", include("ops_api.urls")),
     path("api/accounts/", include("accounts_api.urls")),
     path("api/gen/", include("gen_api.urls")),
-<<<<<<< HEAD
     path("api/sales/", include("sales_api.urls")),
     path('silk/', include('silk.urls', namespace='silk'))
-=======
-    path("api/sales/", include("sales_api.urls"))
->>>>>>> 484d05232bb4c6f60d40a346c793ec2c3cde9c57
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

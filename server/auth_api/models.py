@@ -44,22 +44,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     EMAIL_FIELD = "email"
     
     def __str__(self):
-<<<<<<< HEAD
         return f"User Details: name: {self.name}, email: {self.email}, admin: {self.is_admin}, contact: {self.contact}"
-=======
-        return self.name
->>>>>>> 484d05232bb4c6f60d40a346c793ec2c3cde9c57
 
 
 
 class Employee(models.Model):
     user = models.ForeignKey(User, related_name="employee_details", on_delete=models.CASCADE)
     type = models.CharField(default="sales", max_length=23)
-<<<<<<< HEAD
     allot = models.IntegerField(blank=True, null=True)
     
     def __str__(self):
         return f"Emp Details: name: {self.user.name}, email: {self.user.email}, admin: {self.user.is_admin}, contact: {self.user.contact}, alloted_leads: {self.allot}, employee type: {self.type}"
-=======
-    allot = models.IntegerField(blank=True, null=True)
->>>>>>> 484d05232bb4c6f60d40a346c793ec2c3cde9c57

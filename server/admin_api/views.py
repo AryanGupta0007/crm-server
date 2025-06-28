@@ -6,10 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from . import excelService 
 from admin_api.models import Lead, Batch
 from admin_api.serializers import (
-<<<<<<< HEAD
     EmployeeGetSerializer,
-=======
->>>>>>> 484d05232bb4c6f60d40a346c793ec2c3cde9c57
     EmployeePatchSerializer,
     LeadGetSerializer,
     LeadBoardScorePatchSerializer,
