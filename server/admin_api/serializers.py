@@ -11,11 +11,16 @@ from auth_api.serializers import UserGetSerializer
 from auth_api.models import Employee, User
 
 
+class EmployeeGetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Employee
+        fields = '__all__'
 
 
 class EmployeePatchSerializer(serializers.ModelSerializer):
-    model = Employee
-    fields = ['allot']
+    class Meta:
+        model = Employee
+        fields = ['id', 'allot']
 
 class GetLeadBoardScoreSerializer(serializers.ModelSerializer):
     class Meta:
@@ -111,6 +116,7 @@ class LeadGetSerializer(serializers.ModelSerializer):
         if latest_sale and latest_sale.batch:
             return BatchGetSerializer(latest_sale.batch).data
         return None
+    
     
     def get_revenue(self, obj):
         amount = 0

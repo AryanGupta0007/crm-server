@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from . import excelService 
 from admin_api.models import Lead, Batch
 from admin_api.serializers import (
+    EmployeeGetSerializer,
     EmployeePatchSerializer,
     LeadGetSerializer,
     LeadBoardScorePatchSerializer,
@@ -36,16 +37,17 @@ class DownloadDatabaseFile(APIView):
             as_attachment=True,
             filename='db.sqlite3'
         )
-
 class LeadSheetView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
         lead_sheet = request.FILES.get('file')
         excelService.get_leads(lead_sheet)
+        leads = Lead.objects.all()
         # for lead in leads:
         #     print(lead.name, lead.created_at)
         return Response({
-            'msg': 'Obtained Leads' 
+            'msg': 'Obtained Leads',
+            'leads': [LeadGetSerializer(lead).data for lead in leads] 
         }, status=status.HTTP_200_OK)
         
     def get(self, request):
@@ -62,7 +64,7 @@ class LeadSheetView(APIView):
         serializer = LeadPatchSerializer(data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         
-        for field in ['assigned_to', 'status']:
+        for field in ['assigned_to', 'status', 'source']:
             if field in serializer.validated_data:
                 setattr(lead, field, serializer.validated_data[field])
         lead.save()
@@ -111,7 +113,7 @@ class ResetAllotLeads(APIView):
             'msg': 'alloted leads reset'
         }, status=status.HTTP_200_OK)
         
-    
+            
 class DashboardStatsView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
@@ -138,6 +140,17 @@ class EmployeeView(APIView):
         emps = [UserGetSerializer(user).data for user in users]
         return Response({
             'employees': emps
+        })
+    def patch(self, request):
+        emp = Employee.objects.filter(id=request.data.get('id')).first()
+        print(emp)
+        serializer = EmployeePatchSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        setattr(emp, 'allot', serializer.validated_data.get('allot'))
+        emp.save()
+        
+        return Response({
+            'emp': EmployeeGetSerializer(emp).data 
         })
         
 
@@ -172,6 +185,7 @@ class BatchView(APIView):
         return Response({
             'msg': 'Batch updated success'
         })
+
 
 class ClosedSalesView(APIView):
     permission_classes = [IsAuthenticated]

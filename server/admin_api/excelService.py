@@ -24,8 +24,7 @@ def get_leads(lead_sheet):
     df = pd.read_excel(lead_sheet)
     df = df.to_numpy()
     for row in df:
-        name,  contact = row
-        source = 'A'
+        name,  contact, source = row
         # print(f'row details: {name} {contact} {source}')
         
         lead = Lead(
