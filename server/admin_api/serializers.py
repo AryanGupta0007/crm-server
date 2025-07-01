@@ -122,15 +122,16 @@ class LeadGetSerializer(serializers.ModelSerializer):
         amount = 0
         sale_details = obj.sale_details.first()
         print(f"sale_details: {obj.sale_details}")
-        if (sale_details.batch):
-            batch = sale_details.batch
-            # print(batch.id)
-            batch_details = Batch.objects.filter(id=batch.id).first() 
-            amount += batch_details.price
-            if (sale_details.buy_books):
-                amount += batch_details.book_price
-            # if (obj.sale_details.discount):
-            #     amount += obj.sale_details.discount
+        if (sale_details):
+            if (sale_details.batch):
+                batch = sale_details.batch
+                # print(batch.id)
+                batch_details = Batch.objects.filter(id=batch.id).first() 
+                amount += batch_details.price
+                if (sale_details.buy_books):
+                    amount += batch_details.book_price
+                # if (obj.sale_details.discount):
+                #     amount += obj.sale_details.discount
         return amount
     
     def get_operations_details(self, obj):

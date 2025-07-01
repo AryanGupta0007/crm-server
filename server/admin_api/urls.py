@@ -7,9 +7,11 @@ from admin_api.views import (
     BatchView,
     DashboardStatsView,
     ResetAllotLeads,
-    ClosedSalesView
+    ClosedSalesView, 
+    LeadsView
     )
 urlpatterns = [
+    path('getLeads/', LeadsView.as_view(), name="get_leads"),
     path('leads/', LeadSheetView.as_view(), name="upload_lead_sheet"),
     path('sales/', SaleView.as_view(), name="sales"),
     path('download-db/', DownloadDatabaseFile.as_view(), name='download-db'),

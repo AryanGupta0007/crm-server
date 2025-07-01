@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from auth_api.models import User, Employee
+from admin_api.models import Lead, Batch
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
@@ -56,11 +57,37 @@ class EmployeeCreateSerializer(serializers.ModelSerializer):
         return emp
     
 class EmployeeGetSerializer(serializers.ModelSerializer):
+    assigned_leads = serializers.SerializerMethodField()
+    revenue = serializers.SerializerMethodField()
+    remaining_leads = serializers.SerializerMethodField()
+    closed_leads = serializers.SerializerMethodField()
     class Meta:
         model = Employee
-        fields = '__all__'
+        fields = ['user', 'type', 'allot', 'assigned_leads', 'revenue', 'remaining_leads', 'closed_leads']
+    def get_assigned_leads(self, obj):
+        if (obj.type == "sales"):
+            return Lead.objects.filter(assigned_to=obj.id).count()
+        return 
+    def get_revenue(self, obj):
+        if (obj.type == "sales"):
+            leads = Lead.objects.filter(assigned_to=obj.id, account_details__payment_verification_status = "verified").distinct()
+            amount = 0
+            for lead in leads:
+                sale_details = lead.sale_details.first()
+                amount += sale_details.batch.price 
+                if (sale_details.buy_books):
+                    amount += sale_details.batch.book_price
+            return amount
+        return
+    def get_remaining_leads(self, obj):
+        if (obj.type == "sales"):
+            return Lead.objects.filter(status="new").count()
+        return
+    def get_closed_leads(self, obj):
+        if (obj.type == "sales"):
+            return Lead.objects.filter(account_details__payment_verification_status="verified").count()
+        return
 
-            
 class UserLoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)

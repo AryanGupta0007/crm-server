@@ -72,7 +72,7 @@ class LeadAccountStatus(models.Model):
 class LeadOperationStatus(models.Model):
     lead = models.ForeignKey(Lead, related_name="operations_details", on_delete=models.CASCADE)
     added_to_group = models.BooleanField(default=False)
-    registered_on_group = models.BooleanField(default=False)
+    registered_on_app = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)     
     

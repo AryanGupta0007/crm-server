@@ -21,6 +21,8 @@ from auth_api.serializers import UserGetSerializer
 from auth_api.models import Employee, User
 from django.http import FileResponse, Http404
 import os
+import time
+
 
 
 class DownloadDatabaseFile(APIView):
@@ -37,17 +39,42 @@ class DownloadDatabaseFile(APIView):
             as_attachment=True,
             filename='db.sqlite3'
         )
+        
+        
+class LeadsView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        time1 = time.time()
+        leads = Lead.objects.all()
+        time2 = time.time()
+        leads = leads[:200]
+        print(f'time taken to fetch leads {time2-time1}s')
+        time3 = time.time()
+        serialized_leads = [LeadGetSerializer(lead).data for lead in leads]
+        time4 = time.time()
+        print(f'time taken to serialize {time4-time3}s')
+        
+        return Response({
+            "msg": "Leads fetched",
+            "leads": serialized_leads
+        }, status=status.HTTP_200_OK)
+    def post(self, request):
+        pass
+    
+    
 class LeadSheetView(APIView):
     permission_classes = [IsAuthenticated]
+    from django.db import transaction
+
     def post(self, request):
         lead_sheet = request.FILES.get('file')
         excelService.get_leads(lead_sheet)
-        leads = Lead.objects.all()
+        leads = Lead.objects.all().count()
+        print(f'Total leads: {leads}')
         # for lead in leads:
         #     print(lead.name, lead.created_at)
         return Response({
-            'msg': 'Obtained Leads',
-            'leads': [LeadGetSerializer(lead).data for lead in leads] 
+            'msg': 'Obtained Leads', 
         }, status=status.HTTP_200_OK)
         
     def get(self, request):

@@ -1,11 +1,13 @@
+from django.db import transaction
 import pandas as pd 
 import numpy as np
 from admin_api.models import Lead, LeadBoardScore, LeadAccountStatus, LeadOperationStatus, LeadSaleStatus
 from auth_api.models import User, Employee
-
+import time 
 
 def assign_leads():
     employees = Employee.objects.filter(type="sales")
+    time3 = time.time()
     for employee in employees:
         unassigned_leads = Lead.objects.filter(assigned_to=None).all()
         try:
@@ -16,16 +18,20 @@ def assign_leads():
         for lead in new_leads:
             print(f"{lead} assigned to {employee.user}")
             lead.assigned_to = employee.user       
-            
+    time4 = time.time()
+    print(f'time taken to assign leads {time4-time3}s')
     return "hello"
 
-
+@transaction.atomic
 def get_leads(lead_sheet):
     df = pd.read_excel(lead_sheet)
     df = df.to_numpy()
+    i = 0
+    time1 = time.time()
     for row in df:
+        
         name,  contact, source = row
-        # print(f'row details: {name} {contact} {source}')
+        print(f'{i} row details: {name} {contact} {source}')
         
         lead = Lead(
             name=name,
@@ -59,7 +65,9 @@ def get_leads(lead_sheet):
         lead_board_score.save()
         lead_sale_status.save()
         lead_operation_status.save()
-    
+        i += 1
+    time2 = time.time()
+    print(f'time taken to assign leads {time2-time1}s')
     leads = Lead.objects.all()    
     assign_leads()                
     return leads
