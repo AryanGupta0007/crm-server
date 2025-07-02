@@ -28,7 +28,7 @@ SECRET_KEY = "django-insecure-q(xo-@@y@zixj_s-!0)(tc4qmedg8*4#ztq858!e$z=g7729lr
 DEBUG = True
 
 # ALLOWED_HOSTS = ['crm-server-1x4z.onrender.com']
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'auth_api.backends.CustomTokenAuthentication',
@@ -64,10 +64,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 ]
-# CORS_ALLOWED_ORIGINS = [
-#     "*"
-# ]
-CORS_ALLOW_ALL_ORIGINS = True  # Not recommended for production
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173"
+    ]
+CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = list(default_headers) + [
     'authorization',
@@ -175,3 +175,4 @@ if not DEBUG:
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+

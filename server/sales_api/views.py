@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from admin_api.models import Lead
 from admin_api.serializers import LeadGetSerializer, LeadPatchSerializer,  LeadSaleStatusPatchSerializer, LeadBoardScorePatchSerializer, BatchGetSerializer
+from datetime import date
 
 class LeadView(APIView):
     def patch(self, request):
@@ -39,12 +40,18 @@ class LeadSaleView(APIView):
         if (lead_sale_details):    
             for field in ['batch', 'status', 'form_ss', 'discount', 'discount_ss', 'buy_books', 'books_ss', 'payment_ss', 'followUpDate', 'comment']:
                 if field in serializer.validated_data:
+                    print(lead_sale_details, field, serializer.validated_data[field])
                     setattr(lead_sale_details, field, serializer.validated_data[field])
         status = lead.check_lead_update_status()
         if (status):
             lead.status = 'under-review'
+            lead_sale_details.recieved_date = date.today()
+            lead_sale_details.save()
+            lead.save()            
+        
         lead_sale_details.save()            
-        lead.save()            
+        # print(lead_sale_details)
+        
         return Response({
             "msg": "Lead updated",
             "lead": LeadGetSerializer(lead).data
