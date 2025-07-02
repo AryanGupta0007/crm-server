@@ -64,9 +64,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 ]
-CORS_ALLOWED_ORIGINS = [
-    "https://crm-server-1x4z.onrender.com"
-    ]
+# CORS_ALLOWED_ORIGINS = ["https://crm-server-1x4z.onrender.com"]
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = list(default_headers) + [
     'authorization',
