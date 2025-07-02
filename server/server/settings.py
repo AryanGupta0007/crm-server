@@ -27,8 +27,8 @@ SECRET_KEY = "django-insecure-q(xo-@@y@zixj_s-!0)(tc4qmedg8*4#ztq858!e$z=g7729lr
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# ALLOWED_HOSTS = ['crm-server-1x4z.onrender.com']
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['crm-server-1x4z.onrender.com']
+# ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'auth_api.backends.CustomTokenAuthentication',
@@ -65,9 +65,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 ]
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173"
+    "https://crm-server-1x4z.onrender.com"
     ]
-CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = list(default_headers) + [
     'authorization',
@@ -110,15 +109,15 @@ WSGI_APPLICATION = "server.wsgi.application"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    # 'default': dj_database_url.config(
-    #     # Replace this value with your local database's connection string.
-    #     default='postgresql://postgres:postgres@localhost:5432/server',
-    #     conn_max_age=600
-    #     )
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    'default': dj_database_url.config(
+        # Replace this value with your local database's connection string.
+        default='postgresql://postgres:postgres@localhost:5432/server',
+        conn_max_age=600
+        )
+    # "default": {
+    #     "ENGINE": "django.db.backends.sqlite3",
+    #     "NAME": BASE_DIR / "db.sqlite3",
+    # }
 }
 
 
