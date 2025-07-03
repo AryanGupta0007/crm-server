@@ -14,6 +14,7 @@ from auth_api.serializers import (
     EmployeeGetSerializer,
     )
 from gen_api.serializers import ProofSerializer
+from auth_api.Utils import Utils
 
 
 class ProofView(APIView):
@@ -40,6 +41,7 @@ class ProofView(APIView):
         except Lead.DoesNotExist:
             return Response({"msg": "Lead not found"}, status=status.HTTP_400_BAD_REQUEST)
 
+
 class CurrentUserView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
@@ -49,13 +51,12 @@ class CurrentUserView(APIView):
             "user": UserGetSerializer(user).data
         })
         
-
-
+        
 class UnderReviewLeads(APIView):
     permission_classes = [IsAuthenticated]
-    def get(self, request):
+    def get(self, request, page):
         under_review_leads = Lead.objects.filter(status="under-review").distinct()
-
+        leads = Utils.get_leads(under_review_leads, under_review_leads.count(), page)
         leads = [LeadGetSerializer(lead).data for lead in under_review_leads]
         return Response({
             "msg": "under review leads fetched",
@@ -70,3 +71,14 @@ class BatchView(APIView):
         return Response({
             'batches': all_batches
         })
+        
+
+class TotalPagesView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        count = Lead.objects.filter(status="under-review").count()
+        total_pages = Utils.get_total_pages(count)
+        return Response({
+            "total_pages": total_pages
+            }, status=status.HTTP_200_OK) 
+        

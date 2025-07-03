@@ -8,10 +8,12 @@ from admin_api.views import (
     DashboardStatsView,
     ResetAllotLeads,
     ClosedSalesView, 
-    LeadsView
+    LeadsView,
+    TotalPagesView
     )
 urlpatterns = [
-    path('getLeads/', LeadsView.as_view(), name="get_leads"),
+    path('total-pages/', TotalPagesView.as_view(), name="total_pages"),
+    path('getLeads/<int:page>/', LeadsView.as_view(), name="get_leads"),
     path('leads/', LeadSheetView.as_view(), name="upload_lead_sheet"),
     path('sales/', SaleView.as_view(), name="sales"),
     path('download-db/', DownloadDatabaseFile.as_view(), name='download-db'),

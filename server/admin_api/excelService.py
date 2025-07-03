@@ -17,7 +17,8 @@ def assign_leads():
         new_leads = unassigned_leads[:i]
         for lead in new_leads:
             print(f"{lead} assigned to {employee.user}")
-            lead.assigned_to = employee.user       
+            lead.assigned_to = employee.user  
+            lead.save()     
     time4 = time.time()
     print(f'time taken to assign leads {time4-time3}s')
     return "hello"

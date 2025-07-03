@@ -5,7 +5,30 @@ from rest_framework.permissions import IsAuthenticated
 from admin_api.models import Lead
 from admin_api.serializers import LeadGetSerializer, LeadPatchSerializer,  LeadSaleStatusPatchSerializer, LeadBoardScorePatchSerializer, BatchGetSerializer
 from datetime import date
+from auth_api.Utils import Utils
 
+
+class TotalPagesView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        count = Lead.objects.filter(assigned_to=request.user).count()
+        total_pages = Utils.get_total_pages(count)
+        return Response({
+            "total_pages": total_pages
+            }, status=status.HTTP_200_OK) 
+
+class GetLeadsView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request, page):
+        leads = Lead.objects.filter(assigned_to=request.user)
+        leads = Utils.get_leads(leads, leads.count(), page)
+        leads = [LeadGetSerializer(lead).data for lead in leads]
+        return Response({
+            "msg": "under review leads fetched",
+            "leads": leads
+        })
+        
+        
 class LeadView(APIView):
     def patch(self, request):
         lead = Lead.objects.filter(id=request.data.get('id')).first()

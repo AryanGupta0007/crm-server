@@ -20,10 +20,20 @@ from admin_api.serializers import (
 from auth_api.serializers import UserGetSerializer        
 from auth_api.models import Employee, User
 from django.http import FileResponse, Http404
+from auth_api.Utils import Utils
 import os
 import time
 
-
+class TotalPagesView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        count = Lead.objects.all().count()
+        total_pages = Utils.get_total_pages(count)
+        return Response({
+            "total_pages": total_pages
+            }, status=status.HTTP_200_OK) 
+             
+        
 
 class DownloadDatabaseFile(APIView):
     permission_classes = [IsAuthenticated]
@@ -43,11 +53,11 @@ class DownloadDatabaseFile(APIView):
         
 class LeadsView(APIView):
     permission_classes = [IsAuthenticated]
-    def get(self, request):
+    def get(self, request, page):
         time1 = time.time()
         leads = Lead.objects.all()
         time2 = time.time()
-        leads = leads[:200]
+        leads = Utils.get_leads(leads, leads.count(), page)
         print(f'time taken to fetch leads {time2-time1}s')
         time3 = time.time()
         serialized_leads = [LeadGetSerializer(lead).data for lead in leads]
@@ -79,6 +89,7 @@ class LeadSheetView(APIView):
         
     def get(self, request):
         leads = Lead.objects.all()
+        leads = Utils.get_leads(leads)
         leads = [LeadGetSerializer(lead).data for lead in leads]
         # print(leads)
         return Response({
