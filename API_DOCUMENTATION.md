@@ -46,6 +46,8 @@ Include the access token in the Authorization header:
 Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
 ```
 
+**Note:** The login response returns a nested token structure. Extract the access token from `token.access` field.
+
 ---
 
 ## Authentication API (`/api/auth/`)
@@ -64,14 +66,22 @@ Authenticate user and return JWT tokens.
 **Response:**
 ```json
 {
-    "refresh": "string",
-    "access": "string",
+    "token": {
+        "refresh": "string",
+        "access": "string"
+    },
+    "msg": "User Logged Login",
     "user": {
         "id": "integer",
         "email": "string",
         "name": "string",
+        "type": "admin|sales|operations"
+    },
+    "emp": {
+        "id": "integer",
+        "user": "integer",
         "type": "admin|sales|operations",
-        "is_admin": "boolean"
+        "allot": "integer"
     }
 }
 ```
@@ -108,6 +118,51 @@ Register a new user (admin only).
 }
 ```
 
+**Response:**
+```json
+{
+    "token": {
+        "refresh": "string",
+        "access": "string"
+    },
+    "user": {
+        "id": "integer",
+        "email": "string",
+        "name": "string",
+        "type": "admin|sales|operations"
+    },
+    "emp": {
+        "id": "integer",
+        "user": "integer",
+        "type": "admin|sales|operations",
+        "allot": "integer"
+    },
+    "msg": "User created"
+}
+```
+
+### GET `/api/auth/user/{id}/`
+Get user details by ID.
+
+**Response:**
+```json
+{
+    "msg": "user obtained",
+    "user": {
+        "id": "integer",
+        "email": "string",
+        "name": "string",
+        "type": "admin|sales|operations"
+    },
+    "employee": {
+        "id": "integer",
+        "user": "integer",
+        "type": "admin|sales|operations",
+        "allot": "integer"
+    }
+}
+```
+
 ---
 
 ## Admin API (`/api/admin/`)
@@ -118,10 +173,10 @@ Get dashboard statistics.
 **Response:**
 ```json
 {
-    "converted_leads": 5,
-    "dnp_leads": 3,
-    "active_leads": 12,
-    "total_leads": 20
+    "converted_leads": "integer",
+    "dnp_leads": "integer",
+    "active_leads": "integer",
+    "total_leads": "integer"
 }
 ```
 
@@ -131,7 +186,7 @@ Get total number of pages for lead pagination.
 **Response:**
 ```json
 {
-    "total_pages": 4
+    "total_pages": "integer"
 }
 ```
 
@@ -147,102 +202,20 @@ Get paginated list of leads.
     "msg": "Leads fetched",
     "leads": [
         {
-            "id": 1,
-            "name": "John Doe",
-            "contact_number": "+12345678901",
-            "source": "website",
-            "status": "new",
-            "assigned_to": {
-                "id": 2,
-                "name": "Jane Smith",
-                "email": "jane@example.com"
-            },
-            "created_at": "2024-01-01T10:00:00Z"
+            "id": "integer",
+            "name": "string",
+            "contact_number": "string",
+            "source": "string",
+            "status": "string",
+            "assigned_to": "integer",
+            "created_at": "datetime"
         }
     ]
 }
 ```
 
 ### POST `/api/admin/leads/`
-Create a new lead.
-
-**Request Body:**
-```json
-{
-    "name": "string",
-    "contact_number": "string",
-    "source": "website|referral|direct",
-    "status": "new|contacted|interested|not_interested",
-    "assigned_to": "integer (optional)"
-}
-```
-
-**Response:**
-```json
-{
-    "msg": "Lead created successfully",
-    "lead": {
-        "id": 1,
-        "name": "John Doe",
-        "contact_number": "+12345678901",
-        "source": "website",
-        "status": "new",
-        "assigned_to": null
-    }
-}
-```
-
-### PATCH `/api/admin/leads/{id}/`
-Update an existing lead.
-
-**Path Parameters:**
-- `id` (integer): Lead ID
-
-**Request Body:**
-```json
-{
-    "name": "string (optional)",
-    "source": "string (optional)",
-    "status": "string (optional)",
-    "assigned_to": "integer (optional)"
-}
-```
-
-**Response:**
-```json
-{
-    "msg": "Lead updated successfully",
-    "lead": {
-        "id": 1,
-        "name": "John Doe",
-        "contact_number": "+12345678901",
-        "source": "website",
-        "status": "contacted",
-        "assigned_to": 2
-    }
-}
-```
-
-### GET `/api/admin/leads/`
-Get all leads (no pagination).
-
-**Response:**
-```json
-{
-    "leads": [
-        {
-            "id": 1,
-            "name": "John Doe",
-            "contact_number": "+12345678901",
-            "source": "website",
-            "status": "new"
-        }
-    ]
-}
-```
-
-### POST `/api/admin/import-leads/`
-Import leads from Excel file.
+Upload lead sheet (Excel file).
 
 **Request Body (multipart/form-data):**
 - `file`: Excel file (.xlsx, .xls, .csv)
@@ -250,12 +223,47 @@ Import leads from Excel file.
 **Response:**
 ```json
 {
-    "msg": "Leads imported successfully",
-    "imported_count": 25
+    "msg": "File uploaded successfully",
+    "data": "file_data"
 }
 ```
 
-### GET `/api/admin/employees/`
+### GET `/api/admin/sales/`
+Get sales data.
+
+**Response:**
+```json
+{
+    "sales_data": "array"
+}
+```
+
+### GET `/api/admin/download-db/`
+Download database file (admin only).
+
+**Response:** File download (db.sqlite3)
+
+### GET `/api/admin/closed-sales/`
+Get closed sales leads.
+
+**Response:**
+```json
+{
+    "msg": "closed leads fetched",
+    "revenue": "integer",
+    "leads": [
+        {
+            "id": "integer",
+            "name": "string",
+            "contact_number": "string",
+            "status": "string",
+            "sale_details": "object"
+        }
+    ]
+}
+```
+
+### GET `/api/admin/employee/`
 Get all employees.
 
 **Response:**
@@ -263,46 +271,28 @@ Get all employees.
 {
     "employees": [
         {
-            "id": 1,
-            "user": {
-                "id": 2,
-                "email": "jane@example.com",
-                "name": "Jane Smith"
-            },
-            "type": "sales",
-            "allot": 50
+            "id": "integer",
+            "user": "integer",
+            "type": "admin|sales|operations",
+            "allot": "integer"
         }
     ]
 }
 ```
 
-### PATCH `/api/admin/employees/{id}/`
-Update employee details.
-
-**Path Parameters:**
-- `id` (integer): Employee ID
+### POST `/api/admin/employee/`
+Create new employee.
 
 **Request Body:**
 ```json
 {
-    "type": "admin|sales|operations (optional)",
-    "allot": "integer (optional)"
+    "user": "integer",
+    "type": "admin|sales|operations",
+    "allot": "integer"
 }
 ```
 
-**Response:**
-```json
-{
-    "msg": "Employee updated successfully",
-    "employee": {
-        "id": 1,
-        "type": "sales",
-        "allot": 75
-    }
-}
-```
-
-### GET `/api/admin/batches/`
+### GET `/api/admin/batch/`
 Get all batches.
 
 **Response:**
@@ -310,18 +300,18 @@ Get all batches.
 {
     "batches": [
         {
-            "id": 1,
-            "name": "Batch-2024-01",
-            "book_price": 5000,
-            "price": 15000,
-            "status": "active",
-            "created_at": "2024-01-01T10:00:00Z"
+            "id": "integer",
+            "name": "string",
+            "book_price": "integer",
+            "price": "integer",
+            "status": "string",
+            "created_at": "datetime"
         }
     ]
 }
 ```
 
-### POST `/api/admin/batches/`
+### POST `/api/admin/batch/`
 Create a new batch.
 
 **Request Body:**
@@ -334,122 +324,70 @@ Create a new batch.
 }
 ```
 
-**Response:**
-```json
-{
-    "msg": "New Batch added successfully",
-    "batch": {
-        "id": 1,
-        "name": "Batch-2024-01",
-        "book_price": 5000,
-        "price": 15000,
-        "status": "active"
-    }
-}
-```
-
-### PATCH `/api/admin/batches/{id}/`
-Update an existing batch.
-
-**Path Parameters:**
-- `id` (integer): Batch ID
-
-**Request Body:**
-```json
-{
-    "name": "string (optional)",
-    "book_price": "integer (optional)",
-    "price": "integer (optional)",
-    "status": "string (optional)"
-}
-```
+### POST `/api/admin/reset-allot-leads/`
+Reset lead allotments.
 
 **Response:**
 ```json
 {
-    "msg": "Batch updated successfully",
-    "batch": {
-        "id": 1,
-        "name": "Updated Batch",
-        "book_price": 5500,
-        "price": 16000,
-        "status": "active"
-    }
+    "msg": "Lead allotments reset successfully"
 }
 ```
-
-### GET `/api/admin/closed-sales/`
-Get closed sales leads.
-
-**Response:**
-```json
-{
-    "msg": "closed leads fetched",
-    "revenue": 75000,
-    "leads": [
-        {
-            "id": 1,
-            "name": "John Doe",
-            "contact_number": "+12345678901",
-            "status": "closed-success",
-            "sale_details": {
-                "status": "verified",
-                "batch": {
-                    "name": "Batch-2024-01",
-                    "price": 15000
-                }
-            }
-        }
-    ]
-}
-```
-
-### GET `/api/admin/download-database/`
-Download database file (admin only).
-
-**Response:** File download (db.sqlite3)
 
 ---
 
 ## Sales API (`/api/sales/`)
 
-### GET `/api/sales/my-leads/`
-Get leads assigned to current user.
+### GET `/api/sales/leads/`
+Get sales leads data.
 
 **Response:**
 ```json
 {
-    "leads": [
-        {
-            "id": 1,
-            "name": "John Doe",
-            "contact_number": "+12345678901",
-            "source": "website",
-            "status": "new"
-        }
-    ]
+    "leads_data": "array"
 }
 ```
 
-### POST `/api/sales/update-lead-status/`
-Update lead status and upload documents.
-
-**Request Body (multipart/form-data):**
-- `lead_id`: integer
-- `status`: string
-- `form_ss`: image file (optional)
-- `payment_ss`: image file (optional)
-- `books_ss`: image file (optional)
-- `buy_books`: boolean
+### GET `/api/sales/boardScore/`
+Get sales board score data.
 
 **Response:**
 ```json
 {
-    "msg": "Lead status updated successfully",
-    "lead": {
-        "id": 1,
-        "status": "payment_received"
-    }
+    "board_score": "array"
+}
+```
+
+### GET `/api/sales/lead/`
+Get lead details.
+
+**Response:**
+```json
+{
+    "lead": "object"
+}
+```
+
+### GET `/api/sales/total-pages/`
+Get total pages for sales leads.
+
+**Response:**
+```json
+{
+    "total_pages": "integer"
+}
+```
+
+### GET `/api/sales/get-leads/{page}/`
+Get paginated sales leads.
+
+**Path Parameters:**
+- `page` (integer): Page number (1-based)
+
+**Response:**
+```json
+{
+    "leads": "array"
 }
 ```
 
@@ -457,58 +395,82 @@ Update lead status and upload documents.
 
 ## Operations API (`/api/ops/`)
 
-### GET `/api/ops/leads/`
-Get leads for operations team.
+### GET `/api/ops/lead/`
+Get lead details for operations team.
 
 **Response:**
 ```json
 {
-    "leads": [
-        {
-            "id": 1,
-            "name": "John Doe",
-            "contact_number": "+12345678901",
-            "status": "payment_received",
-            "sale_details": {
-                "status": "verified",
-                "form_ss": "/media/form_screenshots/image.jpg"
-            }
-        }
-    ]
+    "lead": "object"
 }
 ```
 
-### POST `/api/ops/add-to-group/`
-Mark lead as added to group.
+---
 
-**Request Body:**
-```json
-{
-    "lead_id": "integer"
-}
-```
+## Accounts API (`/api/accounts/`)
+
+### GET `/api/accounts/lead/`
+Get lead account details.
 
 **Response:**
 ```json
 {
-    "msg": "Lead added to group successfully"
+    "lead": "object"
 }
 ```
 
-### POST `/api/ops/mark-registered/`
-Mark lead as registered on app.
+---
 
-**Request Body:**
-```json
-{
-    "lead_id": "integer"
-}
-```
+## General API (`/api/gen/`)
+
+### GET `/api/gen/total-pages/`
+Get total pages for general leads.
 
 **Response:**
 ```json
 {
-    "msg": "Lead marked as registered successfully"
+    "total_pages": "integer"
+}
+```
+
+### GET `/api/gen/lead/{pk}/download-image/`
+Download lead proof image.
+
+**Path Parameters:**
+- `pk` (integer): Lead primary key
+
+**Response:** File download
+
+### GET `/api/gen/batch/`
+Get batch information.
+
+**Response:**
+```json
+{
+    "batches": "array"
+}
+```
+
+### GET `/api/gen/under-review-leads/{page}/`
+Get leads under review.
+
+**Path Parameters:**
+- `page` (integer): Page number (1-based)
+
+**Response:**
+```json
+{
+    "leads": "array"
+}
+```
+
+### GET `/api/gen/current-user/`
+Get current user information.
+
+**Response:**
+```json
+{
+    "user": "object"
 }
 ```
 

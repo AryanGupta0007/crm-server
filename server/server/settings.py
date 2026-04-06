@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-q(xo-@@y@zixj_s-!0)(tc4qmedg8*4#ztq858!e$z=g7729lr"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = ['viii-lynn-apt-tragedy.trycloudflare.com', 'localhost', '127.0.0.1']
 CSRF_TRUSTED_ORIGINS = [
     "https://viii-lynn-apt-tragedy.trycloudflare.com",
