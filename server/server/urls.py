@@ -15,13 +15,17 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
-
+from django.views.generic import TemplateView
+from django.views.static import serve
+import os
     
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))    
     
 urlpatterns = [
+    path('', TemplateView.as_view(template_name="index.html")),
     path("admin/", admin.site.urls),
     path("api/auth/", include("auth_api.urls")),
     path("api/admin/", include("admin_api.urls")),
@@ -32,3 +36,9 @@ urlpatterns = [
     path('silk/', include('silk.urls', namespace='silk'))
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=os.path.join(BASE_DIR, 'client_build/dist/assets'))
+# Catch-all for SPA (must be last)
+urlpatterns += [
+    re_path(r'^assets/(?P<path>.*)$', serve, {'document_root': os.path.join(os.path.dirname(BASE_DIR), 'client_build', 'dist', 'assets')}),
+    re_path(r'^(?!api/|admin/|silk/|static/|media/).*$', TemplateView.as_view(template_name="index.html")),
+]

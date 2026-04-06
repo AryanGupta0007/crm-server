@@ -10,6 +10,9 @@ class Batch(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)     
     
+    def __str__(self):
+        return self.name     
+    
     
 class Lead(models.Model):
     assigned_to = models.ForeignKey(User, related_name="assigned_leads", on_delete=models.SET_NULL, null=True, blank=True)
@@ -20,10 +23,14 @@ class Lead(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)     
     
+    def __str__(self):
+        return f"{self.name} - {self.contact_number}"
+    
     def check_lead_update_status(self):
         sale_details = self.sale_details.first()
-        print(self, sale_details)
-        print(sale_details)
+        if not sale_details:
+            return False
+            
         if (sale_details.form_ss) and  (sale_details.payment_ss):    
             if (sale_details.buy_books):
                 if (sale_details.books_ss):

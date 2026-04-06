@@ -49,6 +49,7 @@ class EmployeeCreateSerializer(serializers.ModelSerializer):
         if not type :
             raise serializers.ValidationError('Type of employee not found')
         return attrs
+    
     def create(self, validated_data):
         user = self.context.get('user')
         type = validated_data.get('type')
