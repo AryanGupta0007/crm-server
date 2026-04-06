@@ -304,25 +304,43 @@ Authorization: Bearer <jwt-token>
 ### Run Tests
 ```bash
 # Run all tests
-python server/manage.py test
-
-# Run specific app tests
-python server/manage.py test auth_api
-python server/manage.py test admin_api
-
-# Run with coverage (if coverage is installed)
-coverage run --source='.' server/manage.py test
-coverage report
+python server/manage.py test --verbosity=2
 ```
+
+### Test Structure
+
+The project includes a comprehensive test suite organized as follows:
+
+- **`tests.py`**: Main comprehensive test suite with:
+  - `TestFixtureMixin`: Base test utilities and fixtures
+  - `IntegrationTestCase`: API endpoint tests
+  - `ModelTestCase`: Model and business logic tests
+  - `BusinessLogicTest`: Complex workflow validation tests
+  - `PerformanceTest`: Query performance and aggregation tests
+
+- **`auth_api/tests.py`**: Authentication and user management tests
+- **`admin_api/tests.py`**: Admin operations and lead management tests
+- **`test_utils.py`**: Test utilities for creating unique test data
 
 ### Test Coverage
 
 The project includes comprehensive tests for:
-- User authentication and authorization
-- Lead management and business logic
-- Batch operations and pricing
-- File upload handling
-- API endpoint validation
+- ✅ User authentication and authorization
+- ✅ Lead management and business logic
+- ✅ Batch operations and pricing
+- ✅ File upload handling
+- ✅ API endpoint validation
+- ✅ Role-based access control
+- ✅ Database constraint handling
+- ✅ Performance and query optimization
+
+### Key Test Features
+
+- **Unique Data Generation**: Tests use UUID-based unique emails and contact numbers to avoid constraint violations
+- **Dynamic Assertions**: Tests calculate expected values dynamically rather than using hardcoded numbers
+- **Complete Workflow Testing**: End-to-end testing of lead status validation and business logic
+- **Performance Testing**: Database query performance with large datasets
+- **Error Handling**: Comprehensive testing of validation and error scenarios
 
 ## 🔒 Security Features
 
@@ -348,8 +366,6 @@ The project includes comprehensive tests for:
 ### Batch Management
 - **Batch**: Course/program batches with pricing
 
-## 🚀 Deployment
-
 ### Production Deployment Steps
 
 1. **Environment Variables**
@@ -372,18 +388,6 @@ python server/manage.py migrate --settings=server.settings.production
 4. **WSGI Configuration**
 ```bash
 gunicorn server.server.wsgi:application
-```
-
-### Docker Deployment
-
-A `Dockerfile` can be created for containerized deployment:
-```dockerfile
-FROM python:3.9
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-COPY . .
-CMD ["gunicorn", "server.server.wsgi:application"]
 ```
 
 ## 🤝 Contributing
