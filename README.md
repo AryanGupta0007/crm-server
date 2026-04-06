@@ -9,10 +9,10 @@ A Django REST Framework based CRM system for managing educational sales leads, s
 - ✅ **Django REST Framework** implementation
 - ✅ **Custom User Authentication** with JWT tokens
 - ✅ **Role-Based Access Control** (Admin, Sales, Operations)
-- ✅ **Lead Management System** with complete workflow
+- ✅ **Lead Management System** with basic workflow
 - ✅ **Database Models** for educational sales
-- ✅ **API Endpoints** for all major operations
-- ✅ **Comprehensive Test Suite** with 85%+ coverage
+- ✅ **API Endpoints** for major operations
+- ✅ **Test Suite** with 31 tests covering core functionality
 - ✅ **Production-Ready Configuration**
 
 > **Note**: This project can be submitted as-is for assignments requiring a Django-based CRM system with similar functionality.
@@ -28,7 +28,7 @@ While this project is built for **educational sales CRM**, it demonstrates all t
 | **User & Role Management** | ✅ Custom User model with Admin/Sales/Operations roles |
 | **Data Record Management** | ✅ Lead model with status tracking (similar to financial records) |
 | **Access Control Logic** | ✅ Role-based permissions and middleware |
-| **Dashboard Summary APIs** | ✅ Statistics and analytics endpoints |
+| **Basic Summary APIs** | ✅ Simple dashboard statistics (total, active, converted leads) |
 | **Validation & Error Handling** | ✅ Input validation and proper error responses |
 | **Database Modeling** | ✅ Relational models with proper relationships |
 | **REST API Design** | ✅ Complete CRUD with serializers and viewsets |
@@ -55,6 +55,7 @@ This CRM system can be easily adapted for finance data processing:
    ```python
    # Current: Lead conversion metrics
    # Finance: Financial summaries (income, expenses, balance)
+   # Note: Basic dashboard structure exists but would need enhancement for financial analytics
    ```
 
 4. **Adjust Role Permissions**
@@ -65,25 +66,13 @@ This CRM system can be easily adapted for finance data processing:
 
 ### **🎯 Assignment Fulfillment**
 
-This project demonstrates **all required backend engineering concepts**:
-
-- ✅ **Backend Architecture**: Proper Django structure with apps
-- ✅ **Data Modeling**: Relational database design with relationships
-- ✅ **API Design**: RESTful endpoints with proper HTTP methods
-- ✅ **Access Control**: Role-based permissions and middleware
-- ✅ **Business Logic**: Complex workflow implementation
-- ✅ **Testing**: Comprehensive test suite with model and API tests
-- ✅ **Documentation**: Complete README with API documentation
-
-**📝 The architecture, patterns, and implementation approach shown here directly apply to finance data processing systems.**
-
-## 🏗️ **Backend Engineering Approach**
-
-### **System Design Philosophy**
-- **Batch Management**: Course/program batch creation and pricing
-- **File Uploads**: Screenshot uploads for payment verification and documentation
-- **Excel Integration**: Import/export functionality for lead data
-- **Dashboard Analytics**: Summary statistics and reporting capabilities
+This project demonstrates the **required backend engineering concepts**:
+- **Batch Management**: Course/program batch creation and pricing validation
+- **File Uploads**: Image uploads for payment verification and documentation
+- **Excel Integration**: Import functionality for lead data from Excel files
+- **Basic Dashboard**: Simple statistics (total leads, active leads, converted leads)
+- **Input Validation**: Validation for emails, phone numbers, and names
+- **Error Handling**: Consistent API error responses across all endpoints
 
 ## 📋 System Overview
 
@@ -99,10 +88,10 @@ This project demonstrates **all required backend engineering concepts**:
 ### Data Flow
 
 1. **Lead Generation**: New leads are created and assigned to sales representatives
-2. **Sales Process**: Leads move through stages (interested → form submitted → payment received)
+2. **Sales Process**: Leads move through stages (new → interested → form submitted → payment received)
 3. **Verification**: Payment verification and document validation
 4. **Operations**: Student onboarding, group additions, and app registration
-5. **Analytics**: Dashboard summaries and performance metrics
+5. **Basic Analytics**: Simple dashboard statistics and lead tracking
 
 ## 🛠 Tech Stack
 
@@ -289,13 +278,29 @@ Content-Type: application/json
 
 #### Get Summary Statistics
 ```http
-GET /api/admin/dashboard/
+GET /api/admin/dashboard-stats/
 Authorization: Bearer <jwt-token>
 ```
 
-#### Get Lead Reports
+Returns:
+```json
+{
+    "converted_leads": 5,
+    "dnp_leads": 10,
+    "active_leads": 25,
+    "total_leads": 40
+}
+```
+
+#### Get Leads with Pagination
 ```http
-GET /api/admin/reports/?start_date=2024-01-01&end_date=2024-12-31
+GET /api/admin/getLeads/<page>/
+Authorization: Bearer <jwt-token>
+```
+
+#### Get Closed Sales
+```http
+GET /api/admin/closed-sales/
 Authorization: Bearer <jwt-token>
 ```
 
@@ -303,15 +308,49 @@ Authorization: Bearer <jwt-token>
 
 ### Run Tests
 ```bash
-# Run all tests
-python server/manage.py test --verbosity=2
+# Run all tests (31 tests total)
+python server/manage.py test tests admin_api auth_api --verbosity=2
+
+# Run specific test modules
+python server/manage.py test tests --verbosity=2          # Main integration tests (6 tests)
+python server/manage.py test admin_api --verbosity=2      # Admin API tests (22 tests)  
+python server/manage.py test auth_api --verbosity=2       # Auth API tests (3 tests)
 ```
+
+### Test Coverage
+
+The project includes test coverage with **31 tests total**:
+
+- **Integration Tests** (`tests.py`): 6 tests
+  - Business logic validation
+  - Lead assignment workflows  
+  - Performance testing
+  - User role permissions
+
+- **Admin API Tests** (`admin_api/tests.py`): 22 tests
+  - Model validation (Lead, Batch, LeadSaleStatus, etc.)
+  - Business logic methods
+  - String representations
+  - Data relationships
+
+- **Auth API Tests** (`auth_api/tests.py`): 3 tests
+  - User model functionality
+  - Email authentication backend
+  - Employee model validation
+
+### Test Features
+
+- **Input Validation**: All field validations tested with valid/invalid data
+- **Error Handling**: Custom exception responses verified
+- **Business Logic**: Complex workflows and status transitions tested
+- **Performance**: Query optimization and aggregation performance validated
+- **Security**: Authentication and authorization tested
 
 ### Test Structure
 
-The project includes a comprehensive test suite organized as follows:
+The project includes a test suite organized as follows:
 
-- **`tests.py`**: Main comprehensive test suite with:
+- **`tests.py`**: Main test suite with:
   - `TestFixtureMixin`: Base test utilities and fixtures
   - `IntegrationTestCase`: API endpoint tests
   - `ModelTestCase`: Model and business logic tests
@@ -322,9 +361,8 @@ The project includes a comprehensive test suite organized as follows:
 - **`admin_api/tests.py`**: Admin operations and lead management tests
 - **`test_utils.py`**: Test utilities for creating unique test data
 
-### Test Coverage
 
-The project includes comprehensive tests for:
+The project includes tests for:
 - ✅ User authentication and authorization
 - ✅ Lead management and business logic
 - ✅ Batch operations and pricing
@@ -340,15 +378,18 @@ The project includes comprehensive tests for:
 - **Dynamic Assertions**: Tests calculate expected values dynamically rather than using hardcoded numbers
 - **Complete Workflow Testing**: End-to-end testing of lead status validation and business logic
 - **Performance Testing**: Database query performance with large datasets
-- **Error Handling**: Comprehensive testing of validation and error scenarios
+- **Error Handling**: Testing of validation and error scenarios
 
 ## 🔒 Security Features
 
-- **JWT Authentication**: Secure token-based authentication
+- **JWT Authentication**: Token-based authentication with Simple JWT
 - **CORS Protection**: Configurable cross-origin resource sharing
-- **Input Validation**: Django forms and serializers validation
-- **File Upload Security**: Restricted file types and upload paths
+- **Input Validation**: Custom validators for emails, phone numbers, and names
+- **File Upload Security**: File type and size validation for images and documents
 - **CSRF Protection**: Django's built-in CSRF protection
+- **Rate Limiting**: Basic rate limiting (100 requests/minute per IP)
+- **Security Headers**: XSS protection and content type options
+- **Global Error Handling**: Consistent error responses to prevent information leakage
 
 ## 📊 Models Overview
 

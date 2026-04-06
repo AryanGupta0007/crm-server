@@ -37,6 +37,12 @@ REST_FRAMEWORK = {
         'auth_api.backends.CustomTokenAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_EXCEPTION_HANDLER': 'exceptions.custom_exception_handler',
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 25,
 }
 
 
@@ -78,6 +84,11 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'silk.middleware.SilkyMiddleware',
+    'middleware.SecurityHeadersMiddleware',
+    'middleware.RequestLoggingMiddleware',
+    'middleware.ValidationMiddleware',
+    'middleware.RateLimitMiddleware',
+    'middleware.ErrorHandlingMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",

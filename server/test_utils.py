@@ -20,7 +20,7 @@ def create_test_user(email_suffix=None, **kwargs):
     user = User.objects.create_user(
         email=email,
         name=kwargs.get('name', 'Test User'),
-        contact=kwargs.get('contact', '+1234567890'),
+        contact=kwargs.get('contact', '+12345678902'),
         type=kwargs.get('type', 'sales'),
         password=kwargs.get('password', 'testpass123')
     )
@@ -46,7 +46,7 @@ def create_test_superuser(email_suffix=None, **kwargs):
     user = User.objects.create_user(
         email=email,
         name=kwargs.get('name', 'Admin User'),
-        contact=kwargs.get('contact', '+1234567890'),
+        contact=kwargs.get('contact', '+12345678901'),
         type=kwargs.get('type', 'admin'),
         password=kwargs.get('password', 'adminpass123')
     )

@@ -3,19 +3,20 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status 
 from rest_framework.permissions import IsAuthenticated
+from django.core.exceptions import ValidationError
+from exceptions import APIError, BusinessLogicError
 from . import excelService 
 from admin_api.models import Lead, Batch
+from serializers import (
+    LeadCreateSerializer, LeadUpdateSerializer, 
+    BatchCreateSerializer, BatchUpdateSerializer,
+    EmployeeCreateSerializer, EmployeeUpdateSerializer,
+    FileUploadSerializer
+)
 from admin_api.serializers import (
     EmployeeGetSerializer,
-    EmployeePatchSerializer,
     LeadGetSerializer,
-    LeadBoardScorePatchSerializer,
-    LeadAccountStatusPatchSerializer,
-    LeadOperationStatusPatchSerializer,
-    LeadPatchSerializer,
-    BatchGetSerializer,
-    BatchPatchSerializer,
-    BatchPostSerializer
+    BatchGetSerializer
 )
 from auth_api.serializers import UserGetSerializer        
 from auth_api.models import Employee, User
@@ -23,17 +24,25 @@ from django.http import FileResponse, Http404
 from auth_api.Utils import Utils
 import os
 import time
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class TotalPagesView(APIView):
     permission_classes = [IsAuthenticated]
+    
     def get(self, request):
-        count = Lead.objects.all().count()
-        total_pages = Utils.get_total_pages(count)
-        return Response({
-            "total_pages": total_pages
-            }, status=status.HTTP_200_OK) 
+        try:
+            count = Lead.objects.all().count()
+            total_pages = Utils.get_total_pages(count)
+            return Response({
+                "total_pages": total_pages
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Error in TotalPagesView: {e}")
+            raise APIError("Failed to calculate total pages") 
              
-        
 
 class DownloadDatabaseFile(APIView):
     permission_classes = [IsAuthenticated]
@@ -190,39 +199,64 @@ class EmployeeView(APIView):
         return Response({
             'emp': EmployeeGetSerializer(emp).data 
         })
-        
+
 
 class BatchView(APIView):
     permission_classes = [IsAuthenticated]
+    
     def get(self, request):
-        batches = Batch.objects.all()
-        all_batches = [BatchGetSerializer(batch).data for batch in batches]
-        return Response({
-            'batches': all_batches
-        })
+        try:
+            batches = Batch.objects.all()
+            all_batches = [BatchGetSerializer(batch).data for batch in batches]
+            return Response({
+                'batches': all_batches
+            })
+        except Exception as e:
+            logger.error(f"Error in BatchView.get: {e}")
+            raise APIError("Failed to fetch batches")
     
     def post(self, request):
-        serializer = BatchPostSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        batch = serializer.save()
-        
-        return Response({
-            'msg': 'New Batch added success',
-            'batch': BatchGetSerializer(batch).data
-        })
+        try:
+            serializer = BatchCreateSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            batch = serializer.save()
+            
+            return Response({
+                'msg': 'New Batch added successfully',
+                'batch': BatchGetSerializer(batch).data
+            }, status=status.HTTP_201_CREATED)
+        except ValidationError as e:
+            raise BusinessLogicError(str(e))
+        except Exception as e:
+            logger.error(f"Error in BatchView.post: {e}")
+            raise APIError("Failed to create batch")
     
     def patch(self, request):
-        batch = Batch.objects.filter(id=request.data.get('batchID')).first()
-        serializer = BatchPatchSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        for field in ['price', 'books_price', 'status', 'name']:
-            if field in serializer.validated_data:
-                setattr(batch, field, serializer.validated_data[field])
-        batch.save()
-        print(batch)
-        return Response({
-            'msg': 'Batch updated success'
-        })
+        try:
+            batch_id = request.data.get('batchID')
+            if not batch_id:
+                raise BusinessLogicError("Batch ID is required")
+            
+            batch = Batch.objects.filter(id=batch_id).first()
+            if not batch:
+                raise BusinessLogicError("Batch not found")
+            
+            serializer = BatchUpdateSerializer(batch, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            
+            return Response({
+                'msg': 'Batch updated successfully',
+                'batch': BatchGetSerializer(batch).data
+            })
+        except ValidationError as e:
+            raise BusinessLogicError(str(e))
+        except BusinessLogicError:
+            raise
+        except Exception as e:
+            logger.error(f"Error in BatchView.patch: {e}")
+            raise APIError("Failed to update batch")
+
 
 class ClosedSalesView(APIView):
     permission_classes = [IsAuthenticated]

@@ -76,14 +76,14 @@ class TestFixtureMixin:
         # Create leads with unique contact numbers
         cls.new_lead = Lead.objects.create(
             name='John Doe',
-            contact_number='+1234567899',
+            contact_number='+12345678901',
             source='website',
             status='new'
         )
         
         cls.assigned_lead = Lead.objects.create(
             name='Jane Smith',
-            contact_number='+1234567898',
+            contact_number='+12345678902',
             source='referral',
             status='contacted',
             assigned_to=cls.sales_user
@@ -91,7 +91,7 @@ class TestFixtureMixin:
         
         cls.payment_received_lead = Lead.objects.create(
             name='Bob Johnson',
-            contact_number='+1234567892',
+            contact_number='+12345678903',
             source='direct',
             status='payment_received',
             assigned_to=cls.sales_user
@@ -99,7 +99,7 @@ class TestFixtureMixin:
         
         cls.interested_lead = Lead.objects.create(
             name='Alice Brown',
-            contact_number='+1234567897',
+            contact_number='+12345678904',
             source='website',
             status='interested',
             assigned_to=cls.sales_user
@@ -287,7 +287,7 @@ class IntegrationTestCase(APITestCase):
         cls.admin_user = create_test_superuser(
             email='admin@example.com',
             name='Admin User',
-            contact=f'+123456789{suffix[:1]}',
+            contact=f'+12345678901',
             type='admin',
             password='adminpass123'
         )
@@ -295,7 +295,7 @@ class IntegrationTestCase(APITestCase):
         cls.sales_user = create_test_user(
             email='sales@example.com',
             name='Sales User',
-            contact=f'+123456789{suffix[1:2]}',
+            contact=f'+12345678902',
             type='sales',
             password='salespass123'
         )
@@ -303,7 +303,7 @@ class IntegrationTestCase(APITestCase):
         cls.ops_user = create_test_user(
             email='ops@example.com',
             name='Operations User',
-            contact=f'+123456789{suffix[2:3]}',
+            contact=f'+12345678903',
             type='operations',
             password='opspass123'
         )
@@ -339,14 +339,14 @@ class IntegrationTestCase(APITestCase):
         # Create leads with unique contact numbers
         cls.new_lead = Lead.objects.create(
             name='John Doe',
-            contact_number=f'+123456789{suffix[3:4]}{suffix[4:5]}',
+            contact_number='+12345678910',
             source='website',
             status='new'
         )
         
         cls.assigned_lead = Lead.objects.create(
             name='Jane Smith',
-            contact_number=f'+123456789{suffix[5:6]}{suffix[6:7]}',
+            contact_number='+12345678911',
             source='referral',
             status='contacted',
             assigned_to=cls.sales_user
@@ -354,7 +354,7 @@ class IntegrationTestCase(APITestCase):
         
         cls.payment_received_lead = Lead.objects.create(
             name='Bob Johnson',
-            contact_number=f'+123456789{suffix[7:8]}{suffix[0:1]}',
+            contact_number='+12345678912',
             source='direct',
             status='payment_received',
             assigned_to=cls.sales_user
@@ -362,7 +362,7 @@ class IntegrationTestCase(APITestCase):
         
         cls.interested_lead = Lead.objects.create(
             name='Alice Brown',
-            contact_number=f'+123456789{suffix[1:2]}{suffix[2:3]}',
+            contact_number='+12345678913',
             source='website',
             status='interested',
             assigned_to=cls.sales_user
@@ -460,7 +460,7 @@ class ModelTestCase(TestCase):
         cls.admin_user = create_test_superuser(
             email='admin@example.com',
             name='Admin User',
-            contact=f'+123456788{suffix[:1]}',
+            contact=f'+12345678801',
             type='admin',
             password='adminpass123'
         )
@@ -468,7 +468,7 @@ class ModelTestCase(TestCase):
         cls.sales_user = create_test_user(
             email='sales@example.com',
             name='Sales User',
-            contact=f'+123456788{suffix[1:2]}',
+            contact=f'+12345678802',
             type='sales',
             password='salespass123'
         )
@@ -476,7 +476,7 @@ class ModelTestCase(TestCase):
         cls.ops_user = create_test_user(
             email='ops@example.com',
             name='Operations User',
-            contact=f'+123456788{suffix[2:3]}',
+            contact=f'+12345678803',
             type='operations',
             password='opspass123'
         )
@@ -512,14 +512,14 @@ class ModelTestCase(TestCase):
         # Create leads with unique contact numbers
         cls.new_lead = Lead.objects.create(
             name='John Doe',
-            contact_number=f'+123456788{suffix[3:4]}{suffix[4:5]}',
+            contact_number='+12345678810',
             source='website',
             status='new'
         )
         
         cls.assigned_lead = Lead.objects.create(
             name='Jane Smith',
-            contact_number=f'+123456788{suffix[5:6]}{suffix[6:7]}',
+            contact_number='+12345678811',
             source='referral',
             status='contacted',
             assigned_to=cls.sales_user
@@ -527,7 +527,7 @@ class ModelTestCase(TestCase):
         
         cls.payment_received_lead = Lead.objects.create(
             name='Bob Johnson',
-            contact_number=f'+123456788{suffix[7:8]}{suffix[0:1]}',
+            contact_number='+12345678812',
             source='direct',
             status='payment_received',
             assigned_to=cls.sales_user
@@ -535,7 +535,7 @@ class ModelTestCase(TestCase):
         
         cls.interested_lead = Lead.objects.create(
             name='Alice Brown',
-            contact_number=f'+123456788{suffix[1:2]}{suffix[2:3]}',
+            contact_number='+12345678813',
             source='website',
             status='interested',
             assigned_to=cls.sales_user
@@ -623,7 +623,7 @@ class BusinessLogicTest(ModelTestCase):
         # Create unassigned lead
         unassigned_lead = Lead.objects.create(
             name='Unassigned Lead',
-            contact_number='+1234567899',
+            contact_number='+12345678905',
             source='website',
             status='new'
         )
@@ -653,8 +653,8 @@ class BusinessLogicTest(ModelTestCase):
         leads_in_batch = []
         for i in range(3):
             lead, sale_status, _, _ = self.create_lead_with_full_workflow(
-                name=f'Lead {i}',
-                contact=f'+123456789{i}'
+                name=f'Lead {chr(65+i)}',  # Lead A, Lead B, Lead C
+                contact=f'+1234567890{i}'
             )
             sale_status.batch = self.active_batch
             sale_status.save()
@@ -693,8 +693,8 @@ class PerformanceTest(ModelTestCase):
         # Create multiple leads for testing
         for i in range(20):
             Lead.objects.create(
-                name=f'Lead {i}',
-                contact_number=f'+123456789{i}',
+                name=f'Lead {chr(65+i)}',  # Lead A, Lead B, etc.
+                contact_number=f'+1234567890{i:02d}',
                 source='website' if i % 2 == 0 else 'referral',
                 status='new' if i % 3 == 0 else 'interested'
             )
@@ -719,8 +719,8 @@ class PerformanceTest(ModelTestCase):
         # Create additional leads and sale statuses
         for i in range(10):
             lead = Lead.objects.create(
-                name=f'Batch Lead {i}',
-                contact_number=f'+123456788{i}',
+                name=f'Batch Lead {chr(65+i)}',  # Batch Lead A, Batch Lead B, etc.
+                contact_number=f'+1234567880{i:02d}',
                 source='website',
                 status='interested'
             )

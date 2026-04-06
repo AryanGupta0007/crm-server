@@ -1,27 +1,112 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 from auth_api.models import User
+from validators import validate_name, validate_phone_number, validate_lead_status, validate_batch_name, validate_price, validate_batch_status
 
 
 class Batch(models.Model):
-    name = models.CharField(max_length=20)
-    book_price = models.IntegerField()
-    status = models.CharField(max_length=10)
-    price = models.IntegerField()
+    name = models.CharField(
+        max_length=50,  # Increased for better naming
+        error_messages={
+            'max_length': 'Batch name cannot be longer than 50 characters.',
+        }
+    )
+    book_price = models.IntegerField(
+        error_messages={
+            'invalid': 'Book price must be a valid number.',
+        }
+    )
+    status = models.CharField(
+        max_length=20,  # Increased for more status options
+        default="active",
+        error_messages={
+            'max_length': 'Status cannot be longer than 20 characters.',
+        }
+    )
+    price = models.IntegerField(
+        error_messages={
+            'invalid': 'Price must be a valid number.',
+        }
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)     
+    
+    def clean(self):
+        """Custom validation for batch fields"""
+        super().clean()
+        validate_batch_name(self.name)
+        validate_price(self.book_price)
+        validate_price(self.price)
+        validate_batch_status(self.status)
+        
+        # Business logic validation
+        if self.price < self.book_price:
+            raise ValidationError('Total price cannot be less than book price.')
+    
+    def save(self, *args, **kwargs):
+        self.full_clean()  # Run validation before saving
+        super().save(*args, **kwargs)
     
     def __str__(self):
         return self.name     
     
     
 class Lead(models.Model):
-    assigned_to = models.ForeignKey(User, related_name="assigned_leads", on_delete=models.SET_NULL, null=True, blank=True)
-    name = models.CharField(max_length=72)
-    contact_number = models.CharField(max_length=72, unique=True)
-    source = models.CharField(max_length=10, default="direct")
-    status = models.CharField(max_length=20, default="new")
+    assigned_to = models.ForeignKey(
+        User, 
+        related_name="assigned_leads", 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        error_messages={
+            'invalid': 'Please select a valid user.',
+        }
+    )
+    name = models.CharField(
+        max_length=72,
+        error_messages={
+            'max_length': 'Name cannot be longer than 72 characters.',
+        }
+    )
+    contact_number = models.CharField(
+        max_length=20,  # Increased for international numbers
+        unique=True,
+        error_messages={
+            'max_length': 'Contact number cannot be longer than 20 characters.',
+            'unique': 'A lead with this contact number already exists.',
+        }
+    )
+    source = models.CharField(
+        max_length=20,  # Increased for more source options
+        default="direct",
+        error_messages={
+            'max_length': 'Source cannot be longer than 20 characters.',
+        }
+    )
+    status = models.CharField(
+        max_length=20,  # Increased for more status options
+        default="new",
+        error_messages={
+            'max_length': 'Status cannot be longer than 20 characters.',
+        }
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)     
+    
+    def clean(self):
+        """Custom validation for lead fields"""
+        super().clean()
+        validate_name(self.name)
+        validate_phone_number(self.contact_number)
+        validate_lead_status(self.status)
+        
+        # Business logic validation
+        if self.assigned_to and self.assigned_to.type != 'sales':
+            raise ValidationError('Leads can only be assigned to sales users.')
+    
+    def save(self, *args, **kwargs):
+        self.full_clean()  # Run validation before saving
+        super().save(*args, **kwargs)
     
     def __str__(self):
         return f"{self.name} - {self.contact_number}"

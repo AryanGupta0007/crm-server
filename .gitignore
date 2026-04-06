@@ -2,3 +2,4 @@ myenv/
 test_runner.py
 verify_tests.py
 client_build/
+*.txt
