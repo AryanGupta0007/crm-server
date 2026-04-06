@@ -3,5 +3,5 @@ test_runner.py
 verify_tests.py
 client_build/
 *.txt
-complete_api_test.py 
+*.py
 api_live_test.py

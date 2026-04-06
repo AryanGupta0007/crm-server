@@ -87,18 +87,30 @@ class LeadSheetView(APIView):
 
     def post(self, request):
         lead_sheet = request.FILES.get('file')
+        
+        if lead_sheet is None:
+            # No file uploaded - return all leads
+            leads = Lead.objects.all()
+            leads = Utils.get_leads(leads)
+            leads = [LeadGetSerializer(lead).data for lead in leads]
+            return Response({
+                'msg': 'Obtained Leads', 
+                'leads': leads
+            }, status=status.HTTP_200_OK)
+        
+        # File uploaded - process it
         excelService.get_leads(lead_sheet)
         leads = Lead.objects.all().count()
-        print(f'Total leads: {leads}')
-        # for lead in leads:
+        print(f'total leads: {leads}')
         #     print(lead.name, lead.created_at)
         return Response({
-            'msg': 'Obtained Leads', 
+            'msg': 'File uploaded successfully', 
         }, status=status.HTTP_200_OK)
         
     def get(self, request):
         leads = Lead.objects.all()
-        leads = Utils.get_leads(leads)
+        leads_count = leads.count()
+        leads = Utils.get_leads(leads, leads_count, page=1)  
         leads = [LeadGetSerializer(lead).data for lead in leads]
         # print(leads)
         return Response({

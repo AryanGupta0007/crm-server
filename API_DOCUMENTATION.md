@@ -55,6 +55,9 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
 ### POST `/api/auth/login/`
 Authenticate user and return JWT tokens.
 
+**Request Headers:**
+- `Content-Type: application/json`
+
 **Request Body:**
 ```json
 {
@@ -62,6 +65,17 @@ Authenticate user and return JWT tokens.
     "password": "string"
 }
 ```
+
+**Response Headers:**
+- `Content-Type: application/json`
+- `Vary: Accept, origin`
+- `Allow: POST, OPTIONS`
+- `X-Frame-Options: DENY`
+- `X-Content-Type-Options: nosniff`
+- `Referrer-Policy: strict-origin-when-cross-origin`
+- `Cross-Origin-Opener-Policy: same-origin`
+- `X-XSS-Protection: 1; mode=block`
+- `Access-Control-Expose-Headers: Content-Type, Authorization`
 
 **Response:**
 ```json
@@ -86,6 +100,14 @@ Authenticate user and return JWT tokens.
 }
 ```
 
+**Authentication:**
+Include the access token in the Authorization header:
+```http
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Note:** The login response returns a nested token structure. Extract the access token from `token.access` field.
+
 ### POST `/api/auth/refresh/`
 Refresh access token using refresh token.
 
@@ -103,8 +125,12 @@ Refresh access token using refresh token.
 }
 ```
 
-### POST `/api/auth/register/`
-Register a new user (admin only).
+### POST `/api/auth/user/`
+Create new user (requires admin authentication).
+
+**Request Headers:**
+- `Content-Type: application/json`
+- `Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
 
 **Request Body:**
 ```json
@@ -170,6 +196,10 @@ Get user details by ID.
 ### GET `/api/admin/dashboard-stats/`
 Get dashboard statistics.
 
+**Request Headers:**
+- `Content-Type: application/json`
+- `Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
+
 **Response:**
 ```json
 {
@@ -181,7 +211,11 @@ Get dashboard statistics.
 ```
 
 ### GET `/api/admin/total-pages/`
-Get total number of pages for lead pagination.
+Get total pages for leads pagination.
+
+**Request Headers:**
+- `Content-Type: application/json`
+- `Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
 
 **Response:**
 ```json
@@ -191,10 +225,14 @@ Get total number of pages for lead pagination.
 ```
 
 ### GET `/api/admin/getLeads/{page}/`
-Get paginated list of leads.
+Get paginated leads.
 
 **Path Parameters:**
 - `page` (integer): Page number (1-based)
+
+**Request Headers:**
+- `Content-Type: application/json`
+- `Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
 
 **Response:**
 ```json
@@ -207,44 +245,126 @@ Get paginated list of leads.
             "contact_number": "string",
             "source": "string",
             "status": "string",
-            "assigned_to": "integer",
-            "created_at": "datetime"
+            "created_at": "datetime",
+            "assigned_to": "integer|null",
+            "sale_details": {
+                "status": "string",
+                "amount": "integer|null",
+                "payment_status": "string|null",
+                "form_ss": "string|null",
+                "payment_ss": "string|null",
+                "books_ss": "string|null",
+                "buy_books": "boolean"
+            }
+        }
+    ]
+}
+```
+
+### GET `/api/admin/leads/`
+Get all leads (no file upload).
+
+**Request Headers:**
+- `Content-Type: application/json`
+- `Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
+
+**Response:**
+```json
+{
+    "msg": "Obtained Leads",
+    "leads": [
+        {
+            "id": "integer",
+            "name": "string",
+            "contact_number": "string",
+            "source": "string",
+            "status": "string",
+            "created_at": "datetime",
+            "assigned_to": "integer|null",
+            "sale_details": {
+                "status": "string",
+                "amount": "integer|null",
+                "payment_status": "string|null",
+                "form_ss": "string|null",
+                "payment_ss": "string|null",
+                "books_ss": "string|null",
+                "buy_books": "boolean"
+            }
         }
     ]
 }
 ```
 
 ### POST `/api/admin/leads/`
-Upload lead sheet (Excel file).
+Upload lead sheet file.
+
+**Request Headers:**
+- `Content-Type: multipart/form-data`
+- `Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
 
 **Request Body (multipart/form-data):**
-- `file`: Excel file (.xlsx, .xls, .csv)
+- `file`: Excel file (.xlsx, .xls)
 
 **Response:**
 ```json
 {
-    "msg": "File uploaded successfully",
-    "data": "file_data"
+    "msg": "File uploaded successfully"
 }
 ```
+
+**File Upload Specifications:**
+- **Supported Formats**: .xlsx, .xls
+- **File Size Limit**: 10MB
+- **Processing**: File is parsed and leads are imported into database
+- **Required Fields**: name, contact_number, source, status
 
 ### GET `/api/admin/sales/`
 Get sales data.
 
+**Request Headers:**
+- `Content-Type: application/json`
+- `Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
+
 **Response:**
 ```json
 {
-    "sales_data": "array"
+    "msg": "all Employees",
+    "employees": [
+        {
+            "id": "integer",
+            "employee_details": {
+                "user": "integer",
+                "type": "admin|sales|operations",
+                "allot": "integer",
+                "assigned_leads": "integer|null",
+                "revenue": "integer|null",
+                "remaining_leads": "integer|null",
+                "closed_leads": "integer|null"
+            },
+            "password": "string",
+            "last_login": "datetime|null",
+            "is_superuser": "boolean",
+            "email": "string",
+            "name": "string",
+            "contact": "string",
+            "type": "admin|sales|operations",
+            "is_admin": "boolean",
+            "is_staff": "boolean",
+            "created_at": "datetime",
+            "updated_at": "datetime",
+            "groups": "array",
+            "user_permissions": "array"
+        }
+    ]
 }
 ```
 
-### GET `/api/admin/download-db/`
-Download database file (admin only).
-
-**Response:** File download (db.sqlite3)
-
 ### GET `/api/admin/closed-sales/`
-Get closed sales leads.
+Get closed sales data.
+
+**Request Headers:**
+- `Content-Type: application/json`
+- `Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
 
 **Response:**
 ```json
@@ -256,8 +376,19 @@ Get closed sales leads.
             "id": "integer",
             "name": "string",
             "contact_number": "string",
+            "source": "string",
             "status": "string",
-            "sale_details": "object"
+            "created_at": "datetime",
+            "assigned_to": "integer|null",
+            "sale_details": {
+                "status": "string",
+                "amount": "integer|null",
+                "payment_status": "string|null",
+                "form_ss": "string|null",
+                "payment_ss": "string|null",
+                "books_ss": "string|null",
+                "buy_books": "boolean"
+            }
         }
     ]
 }
